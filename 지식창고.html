@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>지식창고 📚</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fff; --sb: #f7f7f5; --text: #37352f;
+  --light: #787774; --lighter: #9b9a97;
+  --border: #e9e9e7; --hover: #efefef;
+  --accent: #2383e2; --claude: #d97706;
+  --tag: #f1f1ef; --danger: #e03e3e;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+/* ── 사이드바 ── */
+#sb { width: 240px; min-width: 240px; background: var(--sb); border-right: 1px solid var(--border); padding: 20px 0; position: fixed; inset: 0 auto 0 0; overflow-y: auto; z-index: 100; }
+.sb-logo { padding: 0 16px 16px; font-size: 18px; font-weight: 700; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.sb-search { margin: 0 12px 12px; position: relative; }
+.sb-search input { width: 100%; padding: 6px 10px 6px 28px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); font-size: 13px; outline: none; }
+.sb-search input:focus { border-color: var(--accent); }
+.sb-search::before { content: '🔍'; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 11px; }
+.sb-btns { margin: 0 12px 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.sb-btns button { padding: 7px 6px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); font-size: 12px; cursor: pointer; font-weight: 500; transition: all .15s; }
+.sb-btns button:hover { background: var(--text); color: #fff; border-color: var(--text); }
+.sb-btns .btn-yt  { grid-column: 1/-1; }
+.sb-btns .btn-yt:hover  { background: #e53935; border-color: #e53935; }
+.sb-btns .btn-cl:hover  { background: var(--claude); border-color: var(--claude); }
+.sec-lbl { padding: 4px 16px; font-size: 11px; font-weight: 600; color: var(--lighter); text-transform: uppercase; letter-spacing: .8px; margin-top: 10px; }
+.nav { display: flex; align-items: center; gap: 8px; padding: 5px 16px; cursor: pointer; border-radius: 4px; margin: 1px 8px; font-size: 14px; transition: background .1s; user-select: none; }
+.nav:hover { background: var(--hover); }
+.nav.on { background: #e8e8e6; font-weight: 600; }
+.nav .ico { font-size: 16px; width: 20px; text-align: center; }
+.nav .cnt { margin-left: auto; font-size: 11px; color: var(--lighter); background: var(--tag); padding: 1px 7px; border-radius: 20px; }
+
+/* ── 메인 ── */
+#main { margin-left: 240px; flex: 1; }
+#topbar { position: sticky; top: 0; background: rgba(255,255,255,.93); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); padding: 12px 48px; display: flex; align-items: center; justify-content: space-between; z-index: 50; }
+.bc { font-size: 13px; color: var(--light); display: flex; align-items: center; gap: 6px; }
+.bc strong { color: var(--text); }
+#content { padding: 48px 48px 80px; max-width: 900px; }
+
+/* ── 버튼 ── */
+.btn { padding: 5px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); font-size: 13px; cursor: pointer; transition: background .15s; }
+.btn:hover { background: var(--hover); }
+.btn.pri { background: var(--text); color: #fff; border-color: var(--text); }
+.btn.pri:hover { background: #555; }
+.btn.red { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn.red:hover { background: #c0392b; }
+
+/* ── 홈 ── */
+.hero h1 { font-size: 32px; font-weight: 700; letter-spacing: -.5px; margin-bottom: 8px; }
+.hero p  { color: var(--light); font-size: 15px; margin-bottom: 28px; }
+.stats { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+.stat { background: var(--tag); border-radius: 10px; padding: 14px 20px; }
+.stat .n { font-size: 22px; font-weight: 700; }
+.stat .l { font-size: 12px; color: var(--light); margin-top: 2px; }
+.sec-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.sec-name { font-size: 17px; font-weight: 700; letter-spacing: -.3px; }
+
+/* ── 카테고리 그리드 ── */
+.cat-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 12px; margin-bottom: 32px; }
+.cat-card { background: var(--tag); border: 1px solid var(--border); border-radius: 10px; padding: 18px 16px; cursor: pointer; transition: all .15s; }
+.cat-card:hover { background: var(--bg); box-shadow: 0 4px 16px rgba(0,0,0,.1); transform: translateY(-1px); }
+.cat-card .ci { font-size: 26px; margin-bottom: 10px; }
+.cat-card .cn { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.cat-card .cc { font-size: 12px; color: var(--light); }
+
+/* ── 아티클 목록 ── */
+.art-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 32px; }
+.art-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; transition: background .1s; }
+.art-row:hover { background: var(--hover); }
+.art-row .ico { font-size: 18px; margin-top: 3px; flex-shrink: 0; }
+.art-row .body { flex: 1; min-width: 0; }
+.art-row .title { font-weight: 500; font-size: 14px; margin-bottom: 3px; }
+.art-row .excerpt { font-size: 13px; color: var(--light); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; }
+.art-row .meta { font-size: 12px; color: var(--light); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.tag-pill { background: var(--tag); padding: 1px 8px; border-radius: 20px; font-size: 11px; }
+.bdg { font-size: 10px; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+.bdg.u { background: #e8f5e9; color: #2e7d32; }
+.bdg.c { background: #fff3e0; color: #e65100; }
+/* 삭제 버튼 — 항상 보임 */
+.del-art { flex-shrink: 0; background: none; border: 1px solid transparent; border-radius: 6px; cursor: pointer; font-size: 14px; padding: 5px 8px; color: #ccc; transition: all .15s; align-self: center; }
+.del-art:hover { color: var(--danger); background: #fee2e2; border-color: #fecaca; }
+
+/* ── 아티클 뷰 ── */
+.av-cat { font-size: 12px; color: var(--accent); font-weight: 700; letter-spacing: .5px; margin-bottom: 8px; }
+.av-title { font-size: 30px; font-weight: 700; letter-spacing: -.5px; line-height: 1.3; margin-bottom: 12px; }
+.av-meta { font-size: 13px; color: var(--light); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 28px; }
+.av-body { font-size: 15px; line-height: 1.85; }
+.av-body h2 { font-size: 20px; font-weight: 700; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.av-body h3 { font-size: 16px; font-weight: 600; margin: 18px 0 8px; }
+.av-body p  { margin-bottom: 14px; }
+.av-body ul,.av-body ol { padding-left: 20px; margin-bottom: 14px; }
+.av-body li { margin-bottom: 6px; }
+.av-body table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+.av-body th { background: var(--tag); padding: 9px 12px; border: 1px solid var(--border); text-align: left; font-weight: 600; }
+.av-body td { padding: 9px 12px; border: 1px solid var(--border); }
+.av-body blockquote { border-left: 3px solid var(--accent); padding: 10px 16px; margin: 16px 0; background: #f6f8ff; border-radius: 0 8px 8px 0; color: var(--light); font-style: italic; }
+.av-body .callout { background: #fff8e6; border: 1px solid #ffe0a0; border-radius: 8px; padding: 14px 16px; margin: 16px 0; display: flex; gap: 10px; font-size: 14px; }
+.plain { white-space: pre-wrap; }
+.tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+.tag { padding: 3px 10px; border-radius: 20px; background: var(--tag); border: 1px solid var(--border); font-size: 12px; color: var(--light); }
+
+/* ── 메모 ── */
+.memo-sec { margin-top: 32px; padding-top: 24px; border-top: 2px dashed var(--border); }
+.memo-sec h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+.memo-cards { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.mc { background: #fffde7; border: 1px solid #ffe082; border-radius: 8px; padding: 12px 14px 10px; font-size: 14px; position: relative; white-space: pre-wrap; line-height: 1.6; }
+.mc .mdate { font-size: 11px; color: var(--lighter); margin-top: 6px; }
+.mc .mdel { position: absolute; top: 8px; right: 8px; background: none; border: none; cursor: pointer; font-size: 13px; color: var(--lighter); }
+.mc .mdel:hover { color: var(--danger); }
+.mta { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: inherit; resize: vertical; min-height: 80px; outline: none; }
+.mta:focus { border-color: var(--accent); }
+.mrow { display: flex; justify-content: flex-end; margin-top: 8px; }
+
+/* ── 유튜브 ── */
+.yt-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(250px,1fr)); gap: 16px; }
+.yt-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--bg); transition: all .15s; }
+.yt-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.12); transform: translateY(-2px); }
+.yt-thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }
+.yt-nothumb { width: 100%; aspect-ratio: 16/9; background: #111; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+.yt-info { padding: 12px 14px; }
+.yt-title { font-weight: 600; font-size: 14px; line-height: 1.4; margin-bottom: 6px; }
+.yt-meta  { font-size: 12px; color: var(--light); display: flex; gap: 8px; align-items: center; }
+.yt-play { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; padding: 5px 12px; border-radius: 20px; background: #e53935; color: #fff; font-size: 12px; font-weight: 600; border: none; cursor: pointer; }
+.yt-del  { margin-left: auto; background: none; border: none; cursor: pointer; font-size: 14px; color: #ccc; padding: 3px 6px; border-radius: 4px; }
+.yt-del:hover { color: var(--danger); background: #fee2e2; }
+
+/* ── 관리 ── */
+.mi { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; }
+.mi .mib { flex: 1; min-width: 0; }
+.mi .mit { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mi .mim { font-size: 12px; color: var(--light); }
+
+/* ── 모달 ── */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
+.overlay.open { display: flex; }
+.modal { background: var(--bg); border-radius: 14px; padding: 28px 32px; width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); animation: mIn .2s ease; }
+@keyframes mIn { from { transform: translateY(16px); opacity: 0; } }
+.mhdr { font-size: 19px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.mclose { margin-left: auto; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--lighter); }
+.mclose:hover { color: var(--text); }
+.fg { margin-bottom: 14px; }
+.flbl { font-size: 13px; font-weight: 600; margin-bottom: 5px; display: block; }
+.fi,.fs,.fta { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; color: var(--text); outline: none; background: var(--bg); }
+.fi:focus,.fs:focus,.fta:focus { border-color: var(--accent); }
+.fta { resize: vertical; min-height: 140px; line-height: 1.7; }
+.fhint { font-size: 12px; color: var(--lighter); margin-top: 4px; }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.macts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+.infobox { border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; }
+.infobox strong { display: block; margin-bottom: 4px; font-size: 14px; }
+.yt-prev { margin-top: 10px; border-radius: 8px; overflow: hidden; display: none; }
+.yt-prev img { width: 100%; aspect-ratio: 16/9; object-fit: cover; }
+
+.fade-in { animation: fi .2s ease; }
+@keyframes fi { from { opacity:0; transform: translateY(8px); } }
+.empty { text-align: center; padding: 40px 20px; color: var(--light); }
+.empty .ei { font-size: 40px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<!-- 사이드바 -->
+<nav id="sb">
+  <div class="sb-logo">📚 지식창고</div>
+  <div class="sb-search">
+    <input type="text" id="searchInput" placeholder="검색..." oninput="doSearch(this.value)">
+  </div>
+  <div class="sb-btns">
+    <button onclick="openM('write')">✏️ 새 글 작성</button>
+    <button class="btn-cl" onclick="openM('claude')">🤖 Claude 저장</button>
+    <button class="btn-yt" onclick="openM('yt')" style="grid-column:1/-1">▶️ 유튜브 저장</button>
+  </div>
+  <div class="sec-lbl">메뉴</div>
+  <div class="nav on" id="n-home" onclick="showHome()"><span class="ico">🏠</span>홈</div>
+  <div class="nav" id="n-memo" onclick="showMemo()"><span class="ico">📝</span>메모장</div>
+  <div class="nav" id="n-my"   onclick="showMy()">  <span class="ico">👤</span>내가 추가한 글</div>
+  <div class="nav" id="n-yt"   onclick="showYT()">  <span class="ico">📺</span>유튜브 저장함</div>
+  <div class="nav" id="n-mg"   onclick="showManage()"><span class="ico">⚙️</span>데이터 관리</div>
+  <div class="sec-lbl" style="margin-top:14px">카테고리</div>
+  <div id="cat-nav"></div>
+</nav>
+
+<!-- 메인 -->
+<div id="main">
+  <div id="topbar">
+    <div class="bc">📚 지식창고 › <strong id="bc">홈</strong></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="showHome()">← 홈</button>
+      <button class="btn pri" onclick="openM('write')">+ 새 글</button>
+    </div>
+  </div>
+  <div id="content">
+
+    <!-- 홈 -->
+    <div id="v-home" class="fade-in">
+      <div class="hero"><h1>📚 지식창고</h1><p>테마별 지식을 탐색하고, 나만의 글과 메모를 추가하세요.</p></div>
+      <div class="stats" id="stats"></div>
+      <div class="sec-hdr"><div class="sec-name">🗂️ 카테고리</div></div>
+      <div class="cat-grid" id="cat-grid"></div>
+      <div class="sec-hdr"><div class="sec-name">📄 전체 아티클</div></div>
+      <div class="art-list" id="home-list"></div>
+    </div>
+
+    <!-- 카테고리 -->
+    <div id="v-cat" style="display:none" class="fade-in">
+      <div class="hero"><h1 id="cat-title"></h1><p id="cat-desc"></p></div>
+      <div class="art-list" id="cat-list"></div>
+    </div>
+
+    <!-- 아티클 상세 -->
+    <div id="v-art" style="display:none" class="fade-in">
+      <div class="av-cat" id="av-cat"></div>
+      <div class="av-title" id="av-title"></div>
+      <div class="av-meta"  id="av-meta"></div>
+      <div class="av-body"  id="av-body"></div>
+      <div class="tag-row"  id="av-tags"></div>
+      <div id="av-del-wrap" style="display:none;margin-top:16px;">
+        <button class="btn red" id="av-del-btn">🗑️ 이 글 삭제</button>
+      </div>
+      <div class="memo-sec">
+        <h4>📝 이 글 메모</h4>
+        <div class="memo-cards" id="art-memos"></div>
+        <textarea class="mta" id="memo-input" placeholder="메모를 입력하세요..."></textarea>
+        <div class="mrow"><button class="btn pri" onclick="saveMemo()">저장</button></div>
+      </div>
+    </div>
+
+    <!-- 메모장 -->
+    <div id="v-memo" style="display:none" class="fade-in">
+      <div class="hero"><h1>📝 메모장</h1><p>빠르게 적어두는 나만의 노트</p></div>
+      <textarea class="mta" id="gm-input" placeholder="메모 입력..." style="min-height:110px;"></textarea>
+      <div class="mrow" style="margin-bottom:24px"><button class="btn pri" onclick="saveGM()">저장</button></div>
+      <div class="sec-name" style="margin-bottom:12px">📋 저장된 메모</div>
+      <div id="gm-list"></div>
+    </div>
+
+    <!-- 내 글 -->
+    <div id="v-my" style="display:none" class="fade-in">
+      <div class="hero"><h1>👤 내가 추가한 글</h1><p>직접 작성하거나 Claude에서 저장한 글</p></div>
+      <div class="art-list" id="my-list"></div>
+    </div>
+
+    <!-- 유튜브 -->
+    <div id="v-yt" style="display:none" class="fade-in">
+      <div class="hero"><h1>📺 유튜브 저장함</h1><p>저장한 영상을 카테고리별로 탐색하세요.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px" id="yt-filters"></div>
+      <div class="yt-grid" id="yt-grid"></div>
+    </div>
+
+    <!-- 데이터 관리 -->
+    <div id="v-manage" style="display:none" class="fade-in">
+      <div class="hero"><h1>⚙️ 데이터 관리</h1><p>저장된 정보를 항목별로 개별 삭제합니다.</p></div>
+      <div class="sec-hdr" style="margin-bottom:10px"><div class="sec-name">📄 저장된 글 <span id="m-art-cnt" style="font-size:13px;font-weight:400;color:var(--light)"></span></div></div>
+      <div id="m-art-list" style="margin-bottom:28px"></div>
+      <div class="sec-hdr" style="margin-bottom:10px"><div class="sec-name">📺 저장된 유튜브 <span id="m-yt-cnt"  style="font-size:13px;font-weight:400;color:var(--light)"></span></div></div>
+      <div id="m-yt-list"  style="margin-bottom:28px"></div>
+      <div class="sec-hdr" style="margin-bottom:10px"><div class="sec-name">📝 저장된 메모 <span id="m-mo-cnt"  style="font-size:13px;font-weight:400;color:var(--light)"></span></div></div>
+      <div id="m-mo-list"  style="margin-bottom:28px"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 유튜브 플레이어 -->
+<div class="overlay" id="m-ytplay">
+  <div class="modal" style="max-width:760px;padding:20px">
+    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
+      <div style="flex:1"><div style="font-size:18px;font-weight:700;line-height:1.4;margin-bottom:4px" id="yp-title"></div><div style="font-size:13px;color:var(--light)" id="yp-meta"></div></div>
+      <button class="mclose" onclick="closeM('m-ytplay');stopYT()">✕</button>
+    </div>
+    <iframe style="width:100%;aspect-ratio:16/9;border:none;border-radius:8px" id="yt-frame" src="" allowfullscreen allow="autoplay;encrypted-media"></iframe>
+    <div id="yp-memo" style="display:none;margin-top:12px;background:#fffde7;border:1px solid #ffe082;border-radius:8px;padding:12px 14px;font-size:14px;white-space:pre-wrap;line-height:1.7"></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px" id="yp-tags"></div>
+  </div>
+</div>
+
+<!-- 새 글 모달 -->
+<div class="overlay" id="m-write">
+  <div class="modal">
+    <div class="mhdr">✏️ 새 글 작성<button class="mclose" onclick="closeM('m-write')">✕</button></div>
+    <div class="fg">
+      <label class="flbl">카테고리</label>
+      <div style="display:flex;gap:8px">
+        <select class="fs" id="w-cat" style="flex:1"></select>
+        <input  class="fi" id="w-newcat" placeholder="새 카테고리 직접 입력" style="flex:1">
+      </div>
+    </div>
+    <div class="fg"><label class="flbl">제목</label><input class="fi" id="w-title" placeholder="글 제목"></div>
+    <div class="fg"><label class="flbl">내용</label><textarea class="fta" id="w-body" style="min-height:200px" placeholder="내용을 자유롭게 입력하세요."></textarea></div>
+    <div class="fg"><label class="flbl">태그 (쉼표 구분)</label><input class="fi" id="w-tags" placeholder="예: 독서, 자기계발"></div>
+    <div class="macts"><button class="btn" onclick="closeM('m-write')">취소</button><button class="btn pri" onclick="submitWrite()">저장</button></div>
+  </div>
+</div>
+
+<!-- Claude 모달 -->
+<div class="overlay" id="m-claude">
+  <div class="modal">
+    <div class="mhdr">🤖 Claude 내용 저장<button class="mclose" onclick="closeM('m-claude')">✕</button></div>
+    <div class="infobox" style="background:#fff3e0;border:1px solid #ffcc80"><strong>💡 사용법</strong>Claude 답변을 복사해서 아래에 붙여넣고 제목·카테고리를 지정하세요.</div>
+    <div class="fg"><label class="flbl">제목</label><input class="fi" id="c-title" placeholder="제목 입력"></div>
+    <div class="frow fg">
+      <div><label class="flbl">카테고리</label><select class="fs" id="c-cat"></select></div>
+      <div><label class="flbl">새 카테고리</label><input class="fi" id="c-newcat" placeholder="직접 입력"></div>
+    </div>
+    <div class="fg"><label class="flbl">내용 붙여넣기</label><textarea class="fta" id="c-body" style="min-height:200px" placeholder="Claude 답변..."></textarea></div>
+    <div class="fg"><label class="flbl">태그 (쉼표 구분)</label><input class="fi" id="c-tags" placeholder="예: AI, 학습"></div>
+    <div class="macts"><button class="btn" onclick="closeM('m-claude')">취소</button><button class="btn" style="background:var(--claude);color:#fff;border-color:var(--claude)" onclick="submitClaude()">저장</button></div>
+  </div>
+</div>
+
+<!-- 유튜브 저장 모달 -->
+<div class="overlay" id="m-yt">
+  <div class="modal">
+    <div class="mhdr">▶️ 유튜브 저장<button class="mclose" onclick="closeM('m-yt')">✕</button></div>
+    <div class="fg">
+      <label class="flbl">유튜브 URL</label>
+      <input class="fi" id="yt-url" placeholder="https://www.youtube.com/watch?v=..." oninput="previewYT(this.value)">
+      <div class="yt-prev" id="yt-prev"><img id="yt-prev-img" src="" alt="썸네일"></div>
+    </div>
+    <div class="fg"><label class="flbl">제목</label><input class="fi" id="yt-title" placeholder="영상 제목"></div>
+    <div class="frow fg">
+      <div><label class="flbl">카테고리</label><select class="fs" id="yt-cat"></select></div>
+      <div><label class="flbl">새 카테고리</label><input class="fi" id="yt-newcat" placeholder="직접 입력"></div>
+    </div>
+    <div class="fg"><label class="flbl">태그 (쉼표 구분)</label><input class="fi" id="yt-tags" placeholder="예: 강의, 투자"></div>
+    <div class="fg"><label class="flbl">메모 (선택)</label><textarea class="fta" id="yt-memo" style="min-height:70px" placeholder="영상 메모..."></textarea></div>
+    <div class="macts"><button class="btn" onclick="closeM('m-yt')">취소</button><button class="btn" style="background:#e53935;color:#fff;border-color:#e53935" onclick="submitYT()">저장</button></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════ 내장 데이터 ═══════════════ */
+const BUILTIN = [
+  {
+    id:1, category:'종교', icon:'🙏',
+    title:'불교 핵심 가르침 — 원문 & 일반인 해석',
+    date:'2026.06.20', read:'10분', tags:['불교','삼법인','사성제','팔정도','연기법','명상'],
+    source:'builtin',
+    body:`<div style="background:linear-gradient(135deg,#f0f4ff,#e8f0fe);border-radius:14px;padding:22px 26px;margin-bottom:28px"><div style="font-size:11px;font-weight:700;color:#3949ab;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">🙏 Buddhism</div><div style="font-size:22px;font-weight:700;line-height:1.4;margin-bottom:10px">고통에서 자유로<br>2,500년 전 붓다의 핵심 가르침</div><div style="font-size:14px;color:#555;line-height:1.8">불교는 신을 믿는 종교라기보다, <strong>마음의 훈련과 지혜</strong>를 통해 고통에서 벗어나는 방법을 가르치는 철학적 전통입니다. 원문(한자)과 일반인 눈높이 해석을 나란히 정리했습니다.</div></div>
+
+<h2>① 삼법인 (三法印) — 존재의 세 가지 진실</h2>
+<p>불교가 세상을 바라보는 세 가지 근본 시각입니다.</p>
+<table>
+<tr><th width="22%">원문 (한자)</th><th width="15%">읽기</th><th width="25%">뜻</th><th>일반인 해석</th></tr>
+<tr>
+  <td><strong>諸行無常</strong></td><td>제행무상</td><td>모든 것은 변한다</td>
+  <td>기쁨도, 슬픔도, 성공도, 실패도 영원하지 않다. <em>지금 힘든 것도 반드시 지나간다.</em></td>
+</tr>
+<tr>
+  <td><strong>諸法無我</strong></td><td>제법무아</td><td>고정된 "나"는 없다</td>
+  <td>"나"라고 부르는 것은 매 순간 변하는 생각·감정·몸의 흐름일 뿐이다. 고집할 실체가 없다.</td>
+</tr>
+<tr>
+  <td><strong>一切皆苦</strong></td><td>일체개고</td><td>모든 것에 괴로움이 있다</td>
+  <td>원하는 걸 못 얻어도, 얻어도, 잃어도 결국 괴롭다. <em>욕망 자체가 고통의 씨앗이다.</em></td>
+</tr>
+</table>
+
+<h2>② 사성제 (四聖諦) — 고통의 진단과 처방</h2>
+<p>붓다는 의사처럼 접근했습니다. 병을 진단하고, 원인을 찾고, 치유 가능성을 확인하고, 치료법을 제시합니다.</p>
+<table>
+<tr><th width="18%">원문</th><th width="28%">의미</th><th>일반인 해석</th></tr>
+<tr>
+  <td><strong>苦諦</strong> (고제)</td><td>괴로움이 있다 <em>(진단)</em></td>
+  <td>삶이 완벽하지 않다는 것을 인정하는 데서 출발한다. 부정이 아니라 직시다.</td>
+</tr>
+<tr>
+  <td><strong>集諦</strong> (집제)</td><td>원인은 갈애(渴愛)다 <em>(원인)</em></td>
+  <td>"더 가져야 해, 이래야만 해"라는 집착·욕망이 고통의 뿌리다.</td>
+</tr>
+<tr>
+  <td><strong>滅諦</strong> (멸제)</td><td>원인을 끊으면 고통도 끊긴다 <em>(가능성)</em></td>
+  <td>집착을 내려놓으면 해방된다. 포기가 아니라 <strong>자유</strong>다.</td>
+</tr>
+<tr>
+  <td><strong>道諦</strong> (도제)</td><td>그 방법이 팔정도다 <em>(처방)</em></td>
+  <td>구체적인 실천법이 있다. 막연한 믿음이 아니라 훈련이다.</td>
+</tr>
+</table>
+
+<h2>③ 팔정도 (八正道) — 실천 매뉴얼 8가지</h2>
+<p>지혜·계율·선정의 세 영역으로 나뉩니다.</p>
+<table>
+<tr><th width="12%">영역</th><th width="26%">원문</th><th>일반인 해석</th></tr>
+<tr>
+  <td rowspan="2" style="background:#f0f4ff;font-weight:700;text-align:center;vertical-align:middle">지혜</td>
+  <td><strong>正見</strong> (정견) — 바른 견해</td>
+  <td>세상을 있는 그대로 본다. 편견·착각·왜곡 없이.</td>
+</tr>
+<tr>
+  <td><strong>正思</strong> (정사) — 바른 생각</td>
+  <td>욕심·악의·해치려는 마음 없이 생각한다.</td>
+</tr>
+<tr>
+  <td rowspan="3" style="background:#f0fff4;font-weight:700;text-align:center;vertical-align:middle">계율</td>
+  <td><strong>正語</strong> (정어) — 바른 말</td>
+  <td>거짓말·험담·막말·쓸데없는 말을 하지 않는다.</td>
+</tr>
+<tr>
+  <td><strong>正業</strong> (정업) — 바른 행동</td>
+  <td>살생·도둑질·음란한 행동을 하지 않는다.</td>
+</tr>
+<tr>
+  <td><strong>正命</strong> (정명) — 바른 생계</td>
+  <td>남을 해치는 방식으로 돈을 벌지 않는다.</td>
+</tr>
+<tr>
+  <td rowspan="3" style="background:#fff8e6;font-weight:700;text-align:center;vertical-align:middle">선정</td>
+  <td><strong>正精進</strong> (정정진) — 바른 노력</td>
+  <td>나쁜 습관은 줄이고, 좋은 습관은 키운다. 꾸준히.</td>
+</tr>
+<tr>
+  <td><strong>正念</strong> (정념) — 마음챙김</td>
+  <td>지금 이 순간, 내 몸·감정·생각을 <strong>판단 없이</strong> 관찰한다. (마인드풀니스)</td>
+</tr>
+<tr>
+  <td><strong>正定</strong> (정정) — 바른 집중</td>
+  <td>마음을 고요히 모아 명상한다.</td>
+</tr>
+</table>
+
+<h2>④ 연기법 (緣起法) — 모든 것은 연결되어 있다</h2>
+<div style="background:#f6f8ff;border-left:4px solid #3949ab;border-radius:0 10px 10px 0;padding:20px 24px;margin:16px 0">
+  <div style="font-size:11px;font-weight:700;color:#3949ab;letter-spacing:1px;margin-bottom:10px">원문 (原文)</div>
+  <div style="font-size:18px;font-weight:700;letter-spacing:3px;margin-bottom:4px;color:#1a237e">此有故彼有 &nbsp;·&nbsp; 此生故彼生</div>
+  <div style="font-size:18px;font-weight:700;letter-spacing:3px;color:#1a237e">此無故彼無 &nbsp;·&nbsp; 此滅故彼滅</div>
+  <div style="font-size:12px;color:#787774;margin-top:8px;font-style:italic">차유고피유 · 차생고피생 · 차무고피무 · 차멸고피멸</div>
+</div>
+<div style="background:#f1f1ef;border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:15px;line-height:1.8">
+"이것이 있으므로 저것이 있고, 이것이 생기므로 저것이 생긴다.<br>이것이 없으면 저것도 없고, 이것이 사라지면 저것도 사라진다."
+</div>
+<p>모든 것은 혼자 존재하지 않습니다. 내 감정은 상황에서, 상황은 관계에서, 관계는 또 다른 원인에서 비롯됩니다. 누군가를 미워할 때도 "저 사람이 왜 저럴까"가 아니라 "무엇이 저 사람을 저렇게 만들었을까"로 볼 수 있게 됩니다.</p>
+
+<div class="callout">
+  <span style="font-size:20px">✨</span>
+  <div>
+    <strong>핵심 한 줄 요약</strong><br>
+    집착이 괴로움을 만든다. 지금 이 순간을 있는 그대로 보는 것이 자유다.
+  </div>
+</div>`
+  },
+  {
+    id:2, category:'기타', icon:'⚛️',
+    title:'양자역학 — 초등학생도 이해하는 쉬운 설명',
+    date:'2026.06.20', read:'5분', tags:['양자역학','과학','물리','슈뢰딩거','입자'],
+    source:'builtin',
+    body:`<div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:14px;padding:22px 26px;margin-bottom:28px"><div style="font-size:11px;font-weight:700;color:#166534;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">⚛️ Quantum Mechanics</div><div style="font-size:22px;font-weight:700;line-height:1.4;margin-bottom:10px">아주 작은 세계에서는<br>이상한 일들이 일어난다!</div><div style="font-size:14px;color:#555;line-height:1.8">양자역학은 원자보다도 작은 세계의 법칙이에요. 우리가 사는 큰 세계와 완전히 다른 규칙이 적용됩니다.</div></div>
+
+<h2>🔍 얼마나 작은 세계 이야기냐면?</h2>
+<p>머리카락 굵기를 100만 번 쪼개면 <strong>원자(atom)</strong>가 나와요. 양자역학은 바로 이 원자보다도 작은 세계의 법칙이에요.</p>
+
+<h2>😲 이상한 일 1 — 보기 전까지는 정해지지 않는다</h2>
+<div class="callout"><span style="font-size:20px">🐱</span><div><strong>슈뢰딩거의 고양이</strong><br>상자 안 고양이는 열어보기 전까지 살아있기도 하고 죽어있기도 한 상태예요. 우리가 <strong>관찰하는 순간</strong> 비로소 결과가 정해집니다.</div></div>
+
+<h2>😲 이상한 일 2 — 빛은 파도이면서 알갱이다</h2>
+<p>물결처럼 퍼지기도 하고, 공처럼 튀기도 해요. 둘 중 하나가 아니라 <strong>동시에 둘 다</strong>예요.</p>
+<table>
+<tr><th>파도처럼 🌊</th><th>알갱이처럼 ⚽</th></tr>
+<tr><td>벽 두 개에 동시에 부딪힘</td><td>딱 한 곳에 점으로 찍힘</td></tr>
+</table>
+
+<h2>😲 이상한 일 3 — 멀리 떨어져도 서로 연결된다</h2>
+<p>두 입자가 한번 만나면, 아무리 멀리 떨어져도 <strong>한쪽을 건드리면 다른 쪽이 즉시 반응</strong>해요. 서울에 있는 공을 건드렸더니 뉴욕에 있는 공이 동시에 반응하는 것처럼요! 아인슈타인도 "말도 안 돼!" 라고 했지만, 실험해보니 진짜였어요. 😅</p>
+
+<h2>🎲 왜 이런 일이 생기냐면?</h2>
+<p>작은 세계에서는 <strong>확률</strong>로만 움직여요. "여기 있다"가 아니라 "여기 있을 가능성 70%, 저기 있을 가능성 30%"처럼요. 우리가 눈으로 보는 큰 세계와 법칙이 완전히 달라요.</p>
+
+<h2>💡 우리 생활 속 양자역학</h2>
+<table>
+<tr><th>기술</th><th>양자역학과의 연결</th></tr>
+<tr><td>📱 스마트폰 반도체</td><td>양자역학 없이 못 만듦</td></tr>
+<tr><td>💻 컴퓨터 CPU</td><td>전자 흐름 = 양자역학</td></tr>
+<tr><td>🔬 MRI 의료기기</td><td>양자 원리 이용</td></tr>
+<tr><td>🌐 양자 컴퓨터</td><td>미래 핵심 기술</td></tr>
+</table>
+
+<div class="callout"><span style="font-size:20px">🤯</span><div><strong>한 줄 정리</strong><br>아주 작은 세계에서는 "볼 때까지 모름", "동시에 두 곳", "멀어도 연결" 같은 신기한 일이 실제로 일어난다!</div></div>`
+  },
+  {
+    id:3, category:'기타', icon:'✈️',
+    title:'해외여행 필수 영어회화 — 상황별 완벽 정리',
+    date:'2026.06.20', read:'8분', tags:['영어회화','여행','공항','호텔','레스토랑','쇼핑','긴급상황'],
+    source:'builtin',
+    body:`
+<h2>✈️ 공항 / Airport</h2>
+<h3>체크인 카운터</h3>
+<table><thead><tr><th>영어</th><th>한국어</th></tr></thead><tbody>
+<tr><td>I'd like to check in, please.</td><td>체크인 하고 싶습니다.</td></tr>
+<tr><td>Here is my passport and ticket.</td><td>여권과 티켓입니다.</td></tr>
+<tr><td>I'd like a window / aisle seat.</td><td>창가 / 통로 쪽 자리로 주세요.</td></tr>
+<tr><td>Can I take this as carry-on?</td><td>이거 기내 반입 가능한가요?</td></tr>
+<tr><td>How many bags can I check?</td><td>수하물은 몇 개까지 가능한가요?</td></tr>
+<tr><td>My baggage is overweight.</td><td>수하물이 초과됐네요.</td></tr>
+<tr><td>Is my flight on time?</td><td>제 비행기 제시간에 출발하나요?</td></tr>
+</tbody></table>
+
+<h3>입국심사 (Immigration)</h3>
+<table><thead><tr><th>영어</th><th>한국어</th></tr></thead><tbody>
+<tr><td>The purpose of my visit is tourism / business.</td><td>방문 목적은 관광 / 비즈니스입니다.</td></tr>
+<tr><td>I'll be staying for 7 days.</td><td>7일 머물 예정입니다.</td></tr>
+<tr><td>I'm staying at the Hilton Hotel.</td><td>힐튼 호텔에 묵을 예정입니다.</td></tr>
+<tr><td>I have nothing to declare.</td><td>신고할 물건이 없습니다.</td></tr>
+<tr><td>These are personal belongings.</td><td>개인 물품입니다.</td></tr>
+</tbody></table>
+
+<h3>수하물 / 교통</h3>
+<table><thead><tr><th>영어</th><th>한국어</th></tr></thead><tbody>
+<tr><td>Where can I pick up my baggage?</td><td>수하물은 어디서 찾나요?</td></tr>
+<tr><td>My baggage is missing / damaged.</td><td>수하물이 없어졌어요 / 파손됐어요.</td></tr>
+<tr><td>How do I get to downtown?</td><td>시내까지 어떻게 가나요?</td></tr>
+<tr><td>Where is the taxi / bus / subway?</td><td>택시 / 버스 / 지하철이 어디 있나요?</td></tr>
+</tbody></table>
+
+<h2>🏨 호텔 / Hotel</h2>
+<table><thead><tr><th>영어</th><th>한국어</th></tr></thead><tbody>
+<tr><td>I have a reservation under the name Kim.</td><td>김 이름으로 예약했습니다.</td></tr>
+<tr><td>I'd like to check in / check out.</td><td>체크인 / 체크아웃 하고 싶습니다.</td></tr>
+<tr><td>Can I have an early check-in / late check-out?</td><td>얼리 체크인 / 레이트 체크아웃 되나요?</td></tr>
+<tr><td>Can I have a room with a nice view?</td><td>전망 좋은 방으로 주세요.</td></tr>
+<tr><td>The air conditioner / heater doesn't work.</td><td>에어컨 / 히터가 작동 안 해요.</td></tr>
+<tr><td>Can I get extra towels / pillows?</td><td>수건 / 베개를 더 주실 수 있나요?</td></tr>
+<tr><td>Please clean my room.</td><td>방 청소 부탁드립니다.</td></tr>
+<tr><td>Do not disturb, please.</td><td>방해하지 말아 주세요.</td></tr>
+<tr><td>What time is breakfast?</td><td>조식은 몇 시인가요?</td></tr>
+<tr><td>Is Wi-Fi included?</td><td>와이파이 포함인가요?</td></tr>
+<tr><td>Can I have a wake-up call at 7?</td><td>7시에 모닝콜 부탁드립니다.</td></tr>
+</tbody></table>
+
+<h2>🍽️ 레스토랑 / Restaurant</h2>
+<table><thead><tr><th>영어</th><th>한국어</th></tr></thead><tbody>
+<tr><td>Do you have a table for two?</td><td>두 명 자리 있나요?</td></tr>
+<tr><td>Can I make a reservation?</td><td>예약할 수 있나요?</td></tr>
+<tr><td>Can I see the menu, please?</td><td>메뉴판 주세요.</td></tr>
+<tr><td>What do you recommend?</td><td>추천 메뉴가 뭔가요?</td></tr>
+<tr><td>I'll have the steak, please.</td><td>스테이크로 할게요.</td></tr>
+<tr><td>How would you like your steak?</td><td>스테이크 굽기는요?</td></tr>
+<tr><td>Medium / well-done / rare, please.</td><td>미디엄 / 웰던 / 레어로 주세요.</td></tr>
+<tr><td>I'm allergic to nuts / seafood / dairy.</td><td>견과류 / 해산물 / 유제품 알레르기가 있어요.</td></tr>
+<tr><td>Can I have some water, please?</td><td>물 주세요.</td></tr>
+<tr><td>Can I get the check / bill, please?</td><td>계산서 주세요.</td></tr>
+<tr><td>Separate checks, please.</td><td>따로 계산해 주세요.</td></tr>
+<tr><td>Is service charge included?</td><td>서비스 요금 포함인가요?</td></tr>
+<tr><td>Keep the change.</td><td>거스름돈은 괜찮아요.</td></tr>
+</tbody></table>
+
+<h2>🛍️ 쇼핑 / Shopping</h2>
+<table><thead><tr><th>영어</th><th>한국어</th></tr></thead><tbody>
+<tr><td>I'm just looking, thank you.</td><td>그냥 구경하는 거예요.</td></tr>
+<tr><td>How much is this?</td><td>이거 얼마예요?</td></tr>
+<tr><td>Do you have this in a different size / color?</td><td>다른 사이즈 / 색상 있나요?</td></tr>
+<tr><td>Can I try this on?</td><td>입어봐도 될까요?</td></tr>
+<tr><td>It's too big / small / tight / loose.</td><td>너무 크다 / 작다 / 꽉 낀다 / 헐렁하다.</td></tr>
+<tr><td>Can you give me a discount?</td><td>할인 해주실 수 있나요?</td></tr>
+<tr><td>I'll take it.</td><td>이걸로 살게요.</td></tr>
+<tr><td>Can I pay by credit card?</td><td>카드로 계산해도 되나요?</td></tr>
+<tr><td>Can I get a receipt?</td><td>영수증 주세요.</td></tr>
+<tr><td>Can I get a refund / exchange?</td><td>환불 / 교환 할 수 있나요?</td></tr>
+<tr><td>Is this tax-free?</td><td>면세 적용 되나요?</td></tr>
+</tbody></table>
+
+<h2>🚕 교통 / Transportation</h2>
+<table><thead><tr><th>영어</th><th>한국어</th></tr></thead><tbody>
+<tr><td>Take me to this address, please.</td><td>이 주소로 가주세요.</td></tr>
+<tr><td>How much to the airport?</td><td>공항까지 얼마예요?</td></tr>
+<tr><td>Please turn on the meter.</td><td>미터기 켜주세요.</td></tr>
+<tr><td>Can you go faster / slower?</td><td>더 빠르게 / 천천히 가주세요.</td></tr>
+<tr><td>Stop here, please.</td><td>여기서 내려주세요.</td></tr>
+<tr><td>Where is the nearest subway station?</td><td>가장 가까운 지하철역이 어디예요?</td></tr>
+<tr><td>Which bus goes to downtown?</td><td>시내 가는 버스가 몇 번이에요?</td></tr>
+<tr><td>One ticket to [place], please.</td><td>[장소]까지 한 장 주세요.</td></tr>
+<tr><td>Is this seat taken?</td><td>이 자리 있나요?</td></tr>
+</tbody></table>
+
+<h2>🗺️ 길 찾기 / Directions</h2>
+<table><thead><tr><th>영어</th><th>한국어</th></tr></thead><tbody>
+<tr><td>Excuse me, how do I get to [place]?</td><td>실례합니다, [장소]에 어떻게 가나요?</td></tr>
+<tr><td>Is it within walking distance?</td><td>걸어갈 수 있는 거리인가요?</td></tr>
+<tr><td>Turn left / right at the corner.</td><td>모퉁이에서 왼쪽 / 오른쪽으로 도세요.</td></tr>
+<tr><td>Go straight for two blocks.</td><td>두 블록 직진하세요.</td></tr>
+<tr><td>I'm lost. Can you help me?</td><td>길을 잃었어요. 도와주실 수 있나요?</td></tr>
+<tr><td>Can you show me on the map?</td><td>지도에 표시해 주실 수 있나요?</td></tr>
+</tbody></table>
+
+<h2>🚨 긴급상황 / Emergency</h2>
+<div class="callout"><span style="font-size:20px">⚠️</span><div><strong>꼭 외워두세요!</strong><br>긴급상황에서는 짧고 명확하게 말하는 게 중요합니다.</div></div>
+<table><thead><tr><th>영어</th><th>한국어</th></tr></thead><tbody>
+<tr><td>Help! / Call the police!</td><td>도와주세요! / 경찰 불러주세요!</td></tr>
+<tr><td>Call an ambulance!</td><td>구급차 불러주세요!</td></tr>
+<tr><td>I've been robbed / pickpocketed.</td><td>강도를 당했어요 / 소매치기 당했어요.</td></tr>
+<tr><td>I lost my passport / wallet.</td><td>여권 / 지갑을 잃어버렸어요.</td></tr>
+<tr><td>I need to go to the hospital.</td><td>병원에 가야 해요.</td></tr>
+<tr><td>I'm not feeling well.</td><td>몸이 좋지 않아요.</td></tr>
+<tr><td>I have a fever / stomachache / headache.</td><td>열이 나요 / 배가 아파요 / 머리가 아파요.</td></tr>
+<tr><td>I'm allergic to penicillin.</td><td>페니실린 알레르기가 있어요.</td></tr>
+<tr><td>Where is the nearest hospital / pharmacy?</td><td>가장 가까운 병원 / 약국이 어디예요?</td></tr>
+<tr><td>Please contact the Korean Embassy.</td><td>한국 대사관에 연락해 주세요.</td></tr>
+</tbody></table>
+
+<h2>💬 기본 표현 / Basics</h2>
+<table><thead><tr><th>영어</th><th>한국어</th></tr></thead><tbody>
+<tr><td>Excuse me.</td><td>실례합니다.</td></tr>
+<tr><td>Could you speak more slowly?</td><td>좀 더 천천히 말씀해 주시겠어요?</td></tr>
+<tr><td>Could you repeat that?</td><td>다시 한 번 말씀해 주시겠어요?</td></tr>
+<tr><td>I don't understand.</td><td>이해하지 못했어요.</td></tr>
+<tr><td>Do you speak Korean?</td><td>한국어 하세요?</td></tr>
+<tr><td>Can you write it down?</td><td>적어 주실 수 있나요?</td></tr>
+<tr><td>Thank you so much!</td><td>정말 감사합니다!</td></tr>
+<tr><td>I'm sorry to bother you.</td><td>귀찮게 해드려서 죄송합니다.</td></tr>
+</tbody></table>
+
+<div class="callout"><span style="font-size:20px">💡</span><div><strong>여행 꿀팁</strong><br>모르는 상황엔 <strong>"Could you help me?"</strong> 한 마디로 시작하세요. 그 다음은 손짓 발짓으로도 통합니다!</div></div>`
+  }
+];
+
+const CATS = {
+  '종교': {icon:'🙏', desc:'세계 주요 종교의 핵심 가르침과 철학을 탐구합니다.'},
+  '주식': {icon:'📈', desc:'주식 투자의 기초부터 실전 전략까지 정리합니다.'},
+  'AI':   {icon:'🤖', desc:'인공지능의 원리와 우리 삶에 미치는 영향을 살펴봅니다.'},
+  '건강': {icon:'❤️', desc:'과학적으로 검증된 건강 지식입니다.'},
+  '심리': {icon:'🧠', desc:'심리학이 밝혀낸 인간 마음의 작동 원리입니다.'},
+  '경제': {icon:'💰', desc:'세계 경제와 금융의 기본 원리를 알기 쉽게 설명합니다.'},
+  '기타': {icon:'📌', desc:'분류하기 어려운 다양한 지식과 정보를 모아둔 공간입니다.'},
+};
+
+/* ═══════════════ localStorage ═══════════════ */
+const LS = {
+  arts()      { try { return JSON.parse(localStorage.getItem('zk_arts')||'[]'); } catch { return []; } },
+  setArts(a)  { localStorage.setItem('zk_arts', JSON.stringify(a)); },
+  memos()     { try { return JSON.parse(localStorage.getItem('zk_memos')||'{}'); } catch { return {}; } },
+  setMemos(m) { localStorage.setItem('zk_memos', JSON.stringify(m)); },
+  gm()        { try { return JSON.parse(localStorage.getItem('zk_gm')||'[]'); } catch { return []; } },
+  setGM(a)    { localStorage.setItem('zk_gm', JSON.stringify(a)); },
+  yts()       { try { return JSON.parse(localStorage.getItem('zk_yts')||'[]'); } catch { return []; } },
+  setYTs(a)   { localStorage.setItem('zk_yts', JSON.stringify(a)); },
+  // 숨긴 내장 글 ID 목록
+  hidden()    { try { return JSON.parse(localStorage.getItem('zk_hidden')||'[]'); } catch { return []; } },
+  setHidden(a){ localStorage.setItem('zk_hidden', JSON.stringify(a)); },
+  hideBuiltin(id){ const h=LS.hidden(); if(!h.includes(String(id))) h.push(String(id)); LS.setHidden(h); },
+};
+
+/* ═══════════════ 헬퍼 ═══════════════ */
+function allArts() {
+  const hidden = LS.hidden();
+  const visible = BUILTIN.filter(a => !hidden.includes(String(a.id)));
+  return [...visible, ...LS.arts()];
+}
+function catOf(c)  { return CATS[c] || {icon:'📄', desc:c+' 카테고리'}; }
+function allCats() {
+  const m = {};
+  Object.keys(CATS).forEach(c => m[c] = 0);
+  allArts().forEach(a => { m[a.category] = (m[a.category]||0) + 1; });
+  return m;
+}
+function today() {
+  const d = new Date();
+  return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
+}
+function nextId() {
+  const all = allArts();
+  return all.length ? Math.max(...all.map(a=>+a.id)) + 1 : 100;
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function ytId(url) {
+  if (!url) return null;
+  let m;
+  m = url.match(/youtu\.be\/([A-Za-z0-9_-]{11})/);  if(m) return m[1];
+  m = url.match(/[?&]v=([A-Za-z0-9_-]{11})/);        if(m) return m[1];
+  m = url.match(/embed\/([A-Za-z0-9_-]{11})/);        if(m) return m[1];
+  m = url.match(/shorts\/([A-Za-z0-9_-]{11})/);       if(m) return m[1];
+  return null;
+}
+function ytThumb(vid) { return 'https://img.youtube.com/vi/'+vid+'/hqdefault.jpg'; }
+
+/* ═══════════════ 뷰 전환 ═══════════════ */
+let curArtId = null;
+let ytFilter  = 'all';
+
+function hideAll() {
+  ['v-home','v-cat','v-art','v-memo','v-my','v-yt','v-manage'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  document.querySelectorAll('.nav').forEach(el => el.classList.remove('on'));
+}
+function show(id, navId) {
+  hideAll();
+  const el = document.getElementById(id);
+  el.style.display = '';
+  el.classList.remove('fade-in'); void el.offsetWidth; el.classList.add('fade-in');
+  document.getElementById('bc').textContent = navId || '';
+  if (navId) {
+    const n = document.getElementById('n-'+navId);
+    if (n) n.classList.add('on');
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showHome() {
+  show('v-home','home'); curArtId = null;
+  renderStats(); renderCatGrid(); renderCatNav();
+  renderArtList(allArts(), 'home-list');
+}
+function showCat(cat) {
+  show('v-cat'); curArtId = null;
+  document.getElementById('bc').textContent = cat;
+  const info = catOf(cat);
+  document.getElementById('cat-title').textContent = info.icon+' '+cat;
+  document.getElementById('cat-desc').textContent  = info.desc;
+  renderArtList(allArts().filter(a=>a.category===cat), 'cat-list', cat);
+}
+function showMemo()   { show('v-memo','memo'); curArtId=null; renderGM(); }
+function showMy()     { show('v-my','my');     curArtId=null; renderArtList(LS.arts(),'my-list'); }
+function showYT()     { show('v-yt','yt');     curArtId=null; renderYTList(); }
+function showManage() { show('v-manage','mg'); curArtId=null; renderManage(); }
+
+function showArt(id) {
+  const a = allArts().find(x => String(x.id)===String(id));
+  if (!a) return;
+  curArtId = String(id);
+  show('v-art');
+  document.getElementById('bc').textContent = a.title;
+  document.getElementById('av-cat').textContent   = catOf(a.category).icon+' '+a.category;
+  document.getElementById('av-title').textContent = a.title;
+  const meta = document.getElementById('av-meta');
+  meta.innerHTML = '<span>'+esc(a.date)+'</span>'+(a.read?'<span>·</span><span>'+esc(a.read)+' 읽기</span>':'')+
+    (a.source==='user'   ? '<span class="bdg u">✏️ 직접 작성</span>' :
+     a.source==='claude' ? '<span class="bdg c">🤖 Claude</span>' : '');
+  const body = a.body||'';
+  document.getElementById('av-body').innerHTML = /<[a-z][\s\S]*>/i.test(body) ? body : '<div class="plain">'+esc(body)+'</div>';
+  document.getElementById('av-tags').innerHTML = (a.tags||[]).map(t=>'<span class="tag">#'+esc(t)+'</span>').join('');
+  const delWrap = document.getElementById('av-del-wrap');
+  const delBtn  = document.getElementById('av-del-btn');
+  delWrap.style.display = '';
+  delBtn.onclick = function() {
+    if (!confirm('이 글을 삭제할까요?')) return;
+    if (BUILTIN.some(b => String(b.id) === String(id))) LS.hideBuiltin(id);
+    else LS.setArts(LS.arts().filter(x=>String(x.id)!==String(id)));
+    showHome();
+  };
+  document.getElementById('memo-input').value = '';
+  renderArtMemos(id);
+}
+
+/* ═══════════════ 렌더링 ═══════════════ */
+function renderStats() {
+  const cats = allCats();
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><div class="n">'+Object.keys(cats).length+'</div><div class="l">카테고리</div></div>'+
+    '<div class="stat"><div class="n">'+allArts().length+'</div><div class="l">전체 아티클</div></div>'+
+    '<div class="stat"><div class="n">'+LS.arts().length+'</div><div class="l">내가 추가한 글</div></div>'+
+    '<div class="stat"><div class="n">'+LS.yts().length+'</div><div class="l">유튜브</div></div>';
+}
+function renderCatGrid() {
+  document.getElementById('cat-grid').innerHTML = Object.entries(allCats()).map(([cat,cnt])=>{
+    const i = catOf(cat);
+    return '<div class="cat-card" onclick="showCat(\''+cat+'\')"><div class="ci">'+i.icon+'</div><div class="cn">'+esc(cat)+'</div><div class="cc">'+cnt+'개의 아티클</div></div>';
+  }).join('');
+}
+function renderCatNav() {
+  document.getElementById('cat-nav').innerHTML = Object.entries(allCats()).map(([cat,cnt])=>{
+    const i = catOf(cat);
+    return '<div class="nav" id="n-'+esc(cat)+'" onclick="showCat(\''+cat+'\')"><span class="ico">'+i.icon+'</span>'+esc(cat)+'<span class="cnt">'+cnt+'</span></div>';
+  }).join('');
+}
+
+/* ── 아티클 목록 렌더링 (카테고리 포함) ── */
+function renderArtList(list, containerId, currentCat) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = '<div class="empty"><div class="ei">📭</div><p>아티클이 없습니다.</p></div>';
+    return;
+  }
+  el.innerHTML = list.map(a => {
+    const canDel = true; // 내장 글 포함 모두 삭제 가능
+    const excerpt = (a.body||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim().slice(0,120);
+    const badge = a.source==='user' ? '<span class="bdg u">✏️ 직접 작성</span>' :
+                  a.source==='claude' ? '<span class="bdg c">🤖 Claude</span>' : '';
+    return (
+      '<div class="art-row" data-id="'+a.id+'">' +
+        '<div class="ico">'+esc(a.icon||'📄')+'</div>' +
+        '<div class="body">' +
+          '<div class="title">'+esc(a.title)+'</div>' +
+          (excerpt ? '<div class="excerpt">'+esc(excerpt)+'…</div>' : '') +
+          '<div class="meta"><span>'+esc(a.date)+'</span>'+(a.read?'<span>'+esc(a.read)+'</span>':'')+
+          '<span class="tag-pill">'+esc(a.category)+'</span>'+badge+'</div>' +
+        '</div>' +
+        (canDel
+          ? '<button class="del-art" data-del="'+a.id+'" data-cat="'+(currentCat||'')+'" data-container="'+containerId+'" title="삭제">🗑️</button>'
+          : '<span style="width:34px;flex-shrink:0"></span>') +
+      '</div>'
+    );
+  }).join('');
+
+  // 이벤트 위임 — 클릭 / 삭제 모두 처리
+  el.onclick = function(e) {
+    // 삭제 버튼 클릭
+    const delBtn = e.target.closest('[data-del]');
+    if (delBtn) {
+      e.stopPropagation();
+      const id        = delBtn.getAttribute('data-del');
+      const cat       = delBtn.getAttribute('data-cat');
+      const container = delBtn.getAttribute('data-container');
+      if (!confirm('이 글을 삭제할까요?')) return;
+      const isBuiltin = BUILTIN.some(b => String(b.id) === String(id));
+      if (isBuiltin) LS.hideBuiltin(id);
+      else LS.setArts(LS.arts().filter(x => String(x.id) !== String(id)));
+      // 현재 뷰 새로고침
+      if (container === 'my-list') {
+        renderArtList(LS.arts(), 'my-list');
+      } else if (container === 'cat-list' && cat) {
+        renderArtList(allArts().filter(a=>a.category===cat), 'cat-list', cat);
+      } else {
+        renderStats(); renderCatGrid(); renderCatNav();
+        renderArtList(allArts(), 'home-list');
+      }
+      return;
+    }
+    // 아티클 클릭
+    const row = e.target.closest('[data-id]');
+    if (row) showArt(row.getAttribute('data-id'));
+  };
+}
+
+/* ═══════════════ 메모 ═══════════════ */
+function saveMemo() {
+  const text = document.getElementById('memo-input').value.trim();
+  if (!text || !curArtId) return;
+  const all = LS.memos(); const key = curArtId;
+  if (!all[key]) all[key] = [];
+  all[key].unshift({text, date:today()});
+  LS.setMemos(all);
+  document.getElementById('memo-input').value = '';
+  renderArtMemos(curArtId);
+}
+function renderArtMemos(id) {
+  const list = (LS.memos()[String(id)])||[];
+  document.getElementById('art-memos').innerHTML = list.map((m,i) =>
+    '<div class="mc">'+esc(m.text)+'<div class="mdate">'+esc(m.date)+'</div>'+
+    '<button class="mdel" data-amid="'+id+'" data-amidx="'+i+'">✕</button></div>'
+  ).join('');
+  document.getElementById('art-memos').onclick = function(e) {
+    const b = e.target.closest('[data-amid]');
+    if (!b) return;
+    const all = LS.memos(); const key = b.dataset.amid;
+    if (all[key]) { all[key].splice(+b.dataset.amidx,1); LS.setMemos(all); }
+    renderArtMemos(id);
+  };
+}
+function saveGM() {
+  const text = document.getElementById('gm-input').value.trim();
+  if (!text) return;
+  const list = LS.gm(); list.unshift({text,date:today()}); LS.setGM(list);
+  document.getElementById('gm-input').value = ''; renderGM();
+}
+function renderGM() {
+  const list = LS.gm();
+  const el = document.getElementById('gm-list');
+  if (!list.length) { el.innerHTML='<div class="empty"><div class="ei">📝</div><p>저장된 메모가 없습니다.</p></div>'; return; }
+  el.innerHTML = list.map((m,i)=>
+    '<div class="mc">'+esc(m.text)+'<div class="mdate">'+esc(m.date)+'</div><button class="mdel" data-gmi="'+i+'">✕</button></div>'
+  ).join('');
+  el.onclick = function(e) {
+    const b = e.target.closest('[data-gmi]');
+    if (!b) return;
+    const list = LS.gm(); list.splice(+b.dataset.gmi,1); LS.setGM(list); renderGM();
+  };
+}
+
+/* ═══════════════ 유튜브 ═══════════════ */
+function previewYT(url) {
+  const vid = ytId(url);
+  const prev = document.getElementById('yt-prev');
+  if (vid) { document.getElementById('yt-prev-img').src = ytThumb(vid); prev.style.display=''; }
+  else     { prev.style.display='none'; }
+}
+function submitYT() {
+  const url   = document.getElementById('yt-url').value.trim();
+  const title = document.getElementById('yt-title').value.trim();
+  const cat   = document.getElementById('yt-newcat').value.trim() || document.getElementById('yt-cat').value;
+  const tags  = document.getElementById('yt-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const memo  = document.getElementById('yt-memo').value.trim();
+  const vid   = ytId(url);
+  if (!vid)   { alert('올바른 유튜브 URL을 입력해 주세요.'); return; }
+  if (!title) { alert('제목을 입력해 주세요.'); return; }
+  if (!cat)   { alert('카테고리를 선택해 주세요.'); return; }
+  const list = LS.yts();
+  list.unshift({id:Date.now(), videoId:vid, url, title, category:cat, tags, memo, date:today()});
+  LS.setYTs(list); closeM('m-yt'); showYT();
+}
+function renderYTList() {
+  const vids = LS.yts();
+  const cats = ['all',...new Set(vids.map(v=>v.category).filter(Boolean))];
+  document.getElementById('yt-filters').innerHTML = cats.map(c=>
+    '<button onclick="ytFilter=\''+c+'\';renderYTList()" style="padding:5px 14px;border-radius:20px;border:1px solid var(--border);cursor:pointer;font-size:13px;background:'+(ytFilter===c?'var(--text)':'var(--bg)')+';color:'+(ytFilter===c?'#fff':'var(--text)')+'">'+(c==='all'?'전체 '+vids.length:esc(c))+'</button>'
+  ).join('');
+  const filtered = ytFilter==='all' ? vids : vids.filter(v=>v.category===ytFilter);
+  const grid = document.getElementById('yt-grid');
+  if (!filtered.length) { grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">📺</div><p>저장된 영상이 없습니다.</p></div>'; return; }
+  grid.innerHTML = filtered.map(v=>
+    '<div class="yt-card">'+
+    '<img class="yt-thumb" src="'+ytThumb(v.videoId)+'" onerror="this.style.display=\'none\'" alt="">'+
+    '<div class="yt-nothumb" style="display:none">▶️</div>'+
+    '<div class="yt-info">'+
+      '<div class="yt-title">'+esc(v.title)+'</div>'+
+      '<div class="yt-meta"><span>'+esc(v.category||'')+'</span><span>·</span><span>'+esc(v.date)+'</span>'+
+        '<button class="yt-del" data-ytdel="'+v.id+'">🗑️</button>'+
+      '</div>'+
+      (v.tags&&v.tags.length ? '<div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap">'+v.tags.map(t=>'<span class="tag">'+esc(t)+'</span>').join('')+'</div>' : '')+
+      '<button class="yt-play" data-ytplay="'+v.id+'">▶ 재생</button>'+
+    '</div></div>'
+  ).join('');
+  grid.onclick = function(e) {
+    const pb = e.target.closest('[data-ytplay]');
+    if (pb) { playYT(+pb.dataset.ytplay); return; }
+    const db = e.target.closest('[data-ytdel]');
+    if (db) {
+      if (!confirm('이 영상을 삭제할까요?')) return;
+      LS.setYTs(LS.yts().filter(v=>String(v.id)!==String(db.dataset.ytdel)));
+      renderYTList();
+    }
+  };
+}
+function playYT(id) {
+  const v = LS.yts().find(x=>x.id===id);
+  if (!v) return;
+  document.getElementById('yp-title').textContent = v.title;
+  document.getElementById('yp-meta').textContent  = (v.category||'')+' · '+v.date;
+  document.getElementById('yt-frame').src = 'https://www.youtube.com/embed/'+v.videoId+'?autoplay=1';
+  const mo = document.getElementById('yp-memo');
+  if (v.memo) { mo.textContent=v.memo; mo.style.display=''; } else { mo.style.display='none'; }
+  document.getElementById('yp-tags').innerHTML = (v.tags||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
+  openM('m-ytplay');
+}
+function stopYT() { document.getElementById('yt-frame').src=''; }
+
+/* ═══════════════ 데이터 관리 ═══════════════ */
+function renderManage() {
+  const arts   = allArts();
+  const yts    = LS.yts();
+  const gms    = LS.gm();
+  const amemos = LS.memos();
+
+  document.getElementById('m-art-cnt').textContent = '('+arts.length+'개)';
+  document.getElementById('m-yt-cnt').textContent  = '('+yts.length+'개)';
+  const totalMemo = gms.length + Object.values(amemos).reduce((s,a)=>s+a.length,0);
+  document.getElementById('m-mo-cnt').textContent  = '('+totalMemo+'개)';
+
+  // ── 글 목록 ──
+  const artEl = document.getElementById('m-art-list');
+  artEl.innerHTML = !arts.length
+    ? '<div style="color:var(--lighter);font-size:13px;padding:6px 0">글이 없습니다.</div>'
+    : arts.map(a=>{
+        const isBuiltin = a.source==='builtin';
+        const delCell = '<button class="btn red" style="font-size:12px;padding:3px 10px;white-space:nowrap" data-m-del-art="'+a.id+'">삭제</button>';
+        return '<div class="mi"><span style="font-size:16px">'+esc(a.icon||'📄')+'</span>'+
+          '<div class="mib"><div class="mit">'+esc(a.title)+'</div><div class="mim">'+esc(a.category)+' · '+esc(a.date)+(isBuiltin?' · 내장':'')+'</div></div>'+
+          delCell+'</div>';
+      }).join('');
+  artEl.onclick = function(e){
+    const b = e.target.closest('[data-m-del-art]');
+    if (!b) return;
+    if (!confirm('이 글을 삭제할까요?')) return;
+    const delId = b.dataset.mDelArt;
+    if (BUILTIN.some(x => String(x.id) === String(delId))) LS.hideBuiltin(delId);
+    else LS.setArts(LS.arts().filter(a=>String(a.id)!==String(delId)));
+    renderManage();
+  };
+
+  // ── 유튜브 ──
+  const ytEl = document.getElementById('m-yt-list');
+  ytEl.innerHTML = !yts.length
+    ? '<div style="color:var(--lighter);font-size:13px;padding:6px 0">저장된 영상이 없습니다.</div>'
+    : yts.map(v=>
+        '<div class="mi">'+
+        '<img src="'+ytThumb(v.videoId)+'" style="width:60px;height:34px;object-fit:cover;border-radius:4px;flex-shrink:0" onerror="this.style.background=\'#333\'">'+
+        '<div class="mib"><div class="mit">'+esc(v.title)+'</div><div class="mim">'+esc(v.category||'')+' · '+esc(v.date)+'</div></div>'+
+        '<button class="btn red" style="font-size:12px;padding:3px 10px;white-space:nowrap" data-m-del-yt="'+v.id+'">삭제</button>'+
+        '</div>'
+      ).join('');
+  ytEl.onclick = function(e){
+    const b = e.target.closest('[data-m-del-yt]');
+    if (!b) return;
+    if (!confirm('이 영상을 삭제할까요?')) return;
+    LS.setYTs(LS.yts().filter(v=>String(v.id)!==String(b.dataset.mDelYt)));
+    renderManage();
+  };
+
+  // ── 메모 ──
+  const moEl = document.getElementById('m-mo-list');
+  const gmRows = gms.map((m,i)=>
+    '<div class="mi" style="background:#fffde7;border-color:#ffe082">'+
+    '<span>📝</span>'+
+    '<div class="mib"><div style="font-size:13px;white-space:pre-wrap">'+esc(m.text.slice(0,80))+(m.text.length>80?'…':'')+'</div><div class="mim">'+esc(m.date)+' · 메모장</div></div>'+
+    '<button class="btn red" style="font-size:12px;padding:3px 10px;white-space:nowrap" data-m-del-gm="'+i+'">삭제</button>'+
+    '</div>'
+  );
+  const amFlat = Object.entries(amemos).flatMap(([aid,list])=>list.map((m,i)=>({...m,aid,idx:i})));
+  const amRows = amFlat.map(m=>
+    '<div class="mi" style="background:#fffde7;border-color:#ffe082">'+
+    '<span>💬</span>'+
+    '<div class="mib"><div style="font-size:13px;white-space:pre-wrap">'+esc(m.text.slice(0,80))+(m.text.length>80?'…':'')+'</div><div class="mim">'+esc(m.date)+' · 글 메모</div></div>'+
+    '<button class="btn red" style="font-size:12px;padding:3px 10px;white-space:nowrap" data-m-del-am-aid="'+m.aid+'" data-m-del-am-idx="'+m.idx+'">삭제</button>'+
+    '</div>'
+  );
+  moEl.innerHTML = (gmRows.join('')+amRows.join('')) || '<div style="color:var(--lighter);font-size:13px;padding:6px 0">저장된 메모가 없습니다.</div>';
+  moEl.onclick = function(e){
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.mDelGm !== undefined) {
+      const list = LS.gm(); list.splice(+b.dataset.mDelGm,1); LS.setGM(list); renderManage();
+    } else if (b.dataset.mDelAmAid !== undefined) {
+      const all = LS.memos(); const aid = b.dataset.mDelAmAid;
+      if (all[aid]) { all[aid].splice(+b.dataset.mDelAmIdx,1); LS.setMemos(all); }
+      renderManage();
+    }
+  };
+}
+
+/* ═══════════════ 모달 ═══════════════ */
+function fillCats() {
+  const opts = '<option value="">카테고리 선택</option>'+Object.keys(allCats()).map(c=>'<option value="'+esc(c)+'">'+catOf(c).icon+' '+esc(c)+'</option>').join('');
+  ['w-cat','c-cat','yt-cat'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=opts; });
+}
+function openM(name) {
+  fillCats();
+  const map = {write:'m-write', claude:'m-claude', yt:'m-yt', 'm-ytplay':'m-ytplay'};
+  const id  = map[name]||name;
+  // 입력 초기화
+  if (name==='write')  { ['w-cat','w-newcat','w-title','w-body','w-tags'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';}); }
+  if (name==='claude') { ['c-cat','c-newcat','c-title','c-body','c-tags'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';}); }
+  if (name==='yt')     { ['yt-cat','yt-newcat','yt-url','yt-title','yt-tags','yt-memo'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';}); document.getElementById('yt-prev').style.display='none'; }
+  document.getElementById(id).classList.add('open');
+}
+function closeM(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(el => {
+  el.addEventListener('click', e => { if(e.target===el){ el.classList.remove('open'); stopYT(); } });
+});
+
+function submitWrite() {
+  const cat   = document.getElementById('w-newcat').value.trim() || document.getElementById('w-cat').value;
+  const title = document.getElementById('w-title').value.trim();
+  const body  = document.getElementById('w-body').value.trim();
+  const tags  = document.getElementById('w-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  if (!cat)  { alert('카테고리를 선택하거나 입력해 주세요.'); return; }
+  if (!title){ alert('제목을 입력해 주세요.'); return; }
+  if (!body) { alert('내용을 입력해 주세요.'); return; }
+  const arts = LS.arts();
+  arts.push({id:nextId(), category:cat, icon:catOf(cat).icon||'📄', title, body, tags, date:today(), read:'', source:'user'});
+  LS.setArts(arts); closeM('m-write'); showHome();
+}
+function submitClaude() {
+  const cat   = document.getElementById('c-newcat').value.trim() || document.getElementById('c-cat').value;
+  const title = document.getElementById('c-title').value.trim();
+  const body  = document.getElementById('c-body').value.trim();
+  const tags  = document.getElementById('c-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  if (!cat)  { alert('카테고리를 선택하거나 입력해 주세요.'); return; }
+  if (!title){ alert('제목을 입력해 주세요.'); return; }
+  if (!body) { alert('내용을 붙여넣어 주세요.'); return; }
+  const arts = LS.arts();
+  arts.push({id:nextId(), category:cat, icon:catOf(cat).icon||'🤖', title, body, tags, date:today(), read:'', source:'claude'});
+  LS.setArts(arts); closeM('m-claude'); showHome();
+}
+
+/* ═══════════════ 검색 ═══════════════ */
+function doSearch(q) {
+  if (!q.trim()) { showHome(); return; }
+  const lo = q.toLowerCase();
+  const res = allArts().filter(a=>
+    a.title.toLowerCase().includes(lo) ||
+    a.category.toLowerCase().includes(lo) ||
+    (a.tags||[]).some(t=>t.toLowerCase().includes(lo))
+  );
+  hideAll();
+  document.getElementById('v-home').style.display='';
+  document.getElementById('bc').textContent = '검색: '+q;
+  document.getElementById('v-home').querySelector('.hero h1').textContent='🔍 "'+q+'" 검색 결과';
+  document.getElementById('v-home').querySelector('.hero p').textContent=res.length+'개 아티클';
+  document.getElementById('stats').innerHTML='';
+  document.getElementById('cat-grid').innerHTML='';
+  renderArtList(res,'home-list');
+}
+
+
+/* ═══════════════ 초기화 ═══════════════ */
+
+
+showHome();
+</script>
+</body>
+</html>
